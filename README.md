@@ -1,5 +1,20 @@
 # Smart Helmet Safety System — Pure C Project
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+A menu-driven console application that simulates an intelligent two-wheeler helmet:
+**alcohol detection with an ignition interlock, crash detection with emergency SMS
+alerts, helmet-wear enforcement, and ride history logging with a safety report.**
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Wokwi circuit](docs/wokwi-circuit.png) | ![Locked state](docs/wokwi-locked.png) |
+| ![Crash alert](docs/wokwi-crash.png) | ![Console ride](docs/console-ride.png) |
+
+*(In progress — see [docs/README.md](docs/README.md) for the capture checklist.)*
+
 A menu-driven console application that simulates an intelligent two-wheeler helmet:
 **alcohol detection with an ignition interlock, crash detection with emergency SMS
 alerts, helmet-wear enforcement, and ride history logging with a safety report.**
@@ -166,3 +181,7 @@ The simulation is a faithful stand-in for a real build; each module maps to hard
 | `logger.c` CSV | SD card module or EEPROM |
 
 Same decision thresholds (ppm limit, g-force cutoff) apply unchanged.
+
+## License
+
+Released under the [MIT License](LICENSE).
