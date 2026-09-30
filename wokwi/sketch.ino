@@ -24,7 +24,10 @@ const int PIN_LED_GO  = 3;    // green: ignition allowed
 const int PIN_LED_LOCK= 4;    // red:   ignition locked
 const int PIN_STRAP   = 5;    // helmet strap button (INPUT_PULLUP)
 
-const float ALCOHOL_LIMIT_G = 2.00;  // gas reading over this = drunk
+const float ALCOHOL_LIMIT_G = 1.00;  // reading over this = drunk
+const float GAS_BASELINE_V  = 2.50;  // MQ-2 clean-air output (~400 ppm)
+                             // measured live: sober air reads ~1.6-3.4 V
+#define DEMO_AUTO_STRAP 0    // 1 = auto "strap on" for hands-free demo
 const float CRASH_THRESHOLD = 4.00;  // |accel| in g over this = crash
 
 /* ------------------- state machine ------------------------- */
@@ -78,10 +81,14 @@ void setup() {
 
 /* ------------------- helpers ------------------- */
 float readAlcohol() {
-  /* MQ-2 AO gives 0..1023-ish; normalise to 0..5 g-units.
-     Clean air ~ 0.3-0.6; slide the ppm slider up to test. */
+  /* MQ-2 AO gives 0..1023; convert to volts, subtract the clean-air
+     baseline and report only the excess - same "ppm above baseline"
+     semantics as the C project. Clean air ~ 0; slide the ppm slider
+     up (5000+) to simulate a drunk rider (~2.5 = well over limit). */
   int raw = analogRead(PIN_GAS);
-  return raw * 5.0 / 1023.0;
+  float volts = raw * 5.0 / 1023.0;
+  float above = volts - GAS_BASELINE_V;
+  return (above < 0) ? 0 : above;
 }
 
 float readImpactG() {
@@ -97,6 +104,10 @@ float readImpactG() {
 }
 
 bool helmetWorn() {
+#if DEMO_AUTO_STRAP
+  /* Hands-free demo: strap counts as closed for the first 25 s. */
+  if (millis() < 25000UL) return true;
+#endif
   return digitalRead(PIN_STRAP) == LOW;   // pressed = strap closed
 }
 
@@ -233,9 +244,28 @@ void loop() {
     return;
   }
 
-  /* -------- terminal states: hold and explain -------- */
+  /* -------- terminal states: hold, explain, re-arm -------- */
   if (state == STATE_CRASH || state == STATE_BLOCKED) {
-    Serial.println("(system locked - press RST to start a new ride)");
+    static unsigned long lockSince = 0;
+    if (lockSince == 0) lockSince = millis();
+
+    /* A BLOCKED ride re-arms automatically once the sensors are safe
+       again; a CRASH stays locked until RESET (safety-critical). */
+    if (state == STATE_BLOCKED && millis() - lockSince > 3000) {
+      if (helmetWorn() && readAlcohol() <= ALCOHOL_LIMIT_G) {
+        lockSince = 0;
+        state = STATE_PRECHECK;
+        Serial.println(">> Sensors normal again - system re-armed.");
+        lcd.clear();
+        lcd.print("SYSTEM RE-ARMED");
+        delay(800);
+        return;
+      }
+    }
+
+    Serial.println(state == STATE_CRASH
+      ? "(crash lock - press RST for a new ride)"
+      : "(locked - fix the sensors to re-arm, or press RST)");
     delay(3000);
   }
 }

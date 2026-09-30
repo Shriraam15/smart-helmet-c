@@ -53,13 +53,13 @@ different I2C address. That sentence is a great viva answer.
 
 | Minute | Do this | What it shows |
 |---|---|---|
-| 0:00 | Press ▶ Play | LCD boots "SMART HELMET", Serial shows system banner |
-| 0:15 | Hover the **gas sensor** → drag ppm slider up | Pre-ride check: "ALCOHOL HIGH", red LED, buzzer, SMS in Serial |
-| 0:45 | Drag ppm back down (~400) | Next check passes → "RIDE STARTED", green LED, 1 beep |
-| 1:15 | Press and hold the **strap button** | This is "helmet worn"; riding ticks stream on Serial + LCD |
-| 1:45 | **Release** the strap button | "HELMET REMOVED" → ride ends, red LED, INTERLOCK SMS |
-| 2:15 | Press ▶ again (or RST), keep strap pressed | Ride starts again; at **tick 8 an automatic 6 g impact** fires |
-| 2:30 | Watch the crash | "CRASH DETECTED", buzzer alarm, CRASH ALERT SMS in Serial |
+| 0:00 | Press ▶ Play, then **press & hold the blue strap button** | LCD boots; with strap held, pre-ride passes → "RIDE STARTED", green LED |
+| 0:20 | Keep holding the strap; watch Serial | Riding ticks stream: alcohol ~0.0–0.3 (calibrated), impact ~0 g |
+| 0:35 | At **tick 8** the auto impact fires | "CRASH DETECTED!", buzzer alarm, CRASH ALERT SMS in Serial, red LED |
+| 1:00 | Restart (↻), hold strap, then **drag gas ppm slider to 5000+** mid-ride | "Alcohol over limit while riding" → INTERLOCK SMS, red LED |
+| 1:40 | Restart (↻), do **not** press the strap | "PUT ON HELMET" — ignition stays locked, red LED |
+| 2:10 | Restart (↻), press strap, drag ppm to 5000+ before the check | "ALCOHOL HIGH / ignition locked" — pre-ride drunk block + INTERLOCK SMS |
+| 2:40 | **Don't restart!** Drag ppm back to ~400, keep strap held | After ~5 s: "SYSTEM RE-ARMED" → pre-ride runs again → ride starts |
 
 **Alternative to the auto-crash:** while riding, drag the MPU6050's
 acceleration sliders — any total acceleration over 4 g triggers the crash.
@@ -117,6 +117,20 @@ A: Below ~3 g covers normal bumps and dropping the helmet; literature on
 bike accidents puts impact spikes well above 4–6 g. It is a configurable
 `const` — on the desktop version it is a setting in `data/settings.txt`.
 
+**Q: Why does the system stay locked after a block instead of recovering instantly?**
+A: A safety interlock must *latch* — otherwise a drunk rider could just wait by
+the sensor until it re-checks. The Arduino version deliberately keeps the
+locked state until conditions are genuinely safe again: BLOCKED rides re-arm
+~5 s after alcohol drops under the limit (and the strap is held), while a
+CRASH requires a manual RESET — exactly how real vehicle interlocks behave.
+
+**Q: Why subtract a 2.5 V baseline from the gas reading?**
+A: The MQ-2 always outputs ~2.5 V in clean air (its conductivity never goes to
+zero) — only the *excess above baseline* means alcohol. This mirrors the C
+project's "ppm above baseline" semantics and was verified live: clean air reads
+0.0–0.3 after calibration vs 2.3–3.4 before (which false-blocked every rider).
+Set the ppm slider to ~5000+ to exceed the 1.0 limit and trigger the drunk flow.
+
 **Q: Why is the MQ-2 reading analog, not digital?**
 A: The DO pin only says "above/below a preset threshold"; the AO pin gives
 the actual concentration so the firmware can apply its own limit, log
@@ -149,6 +163,7 @@ one-to-one.
 |---|---|
 | LCD shows nothing | Check SDA/SCL not swapped; verify `pins: "i2c"` in diagram.json |
 | "MPU6050 not found" | SDA→A4 and SCL→A5 must be exact on the Uno |
-| Gas always triggers | Drag the ppm slider back to ~400 before the pre-ride check |
+| Gas always triggers | Drag the ppm slider back to ~400 (clean air) before the pre-ride check |
+| Stuck on IGNITION LOCKED | That's the safety latch. Blocked rides re-arm ~5 s after ppm < 1.0 and the strap is held; after a CRASH only RST unlocks |
 | No sound | Click the buzzer part; volume attr is 0.6 — raise to 1.0 |
 | Library errors | Library Manager: add "Adafruit MPU6050" and "LiquidCrystal I2C" |
