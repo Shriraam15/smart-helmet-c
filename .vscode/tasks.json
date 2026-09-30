@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build smart helmet",
+            "type": "shell",
+            "command": "C:\\Users\\vpshr\\mingw64\\bin\\gcc.exe",
+            "args": [
+                "-std=c99",
+                "-Wall",
+                "-Wextra",
+                "-pedantic",
+                "-g",
+                "-o",
+                "${workspaceFolder}\\build\\smart_helmet.exe",
+                "${workspaceFolder}\\src\\main.c",
+                "${workspaceFolder}\\src\\sensors.c",
+                "${workspaceFolder}\\src\\helmet.c",
+                "${workspaceFolder}\\src\\alert.c",
+                "${workspaceFolder}\\src\\logger.c",
+                "${workspaceFolder}\\src\\utils.c"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc",
+            "detail": "gcc -std=c99 -Wall -Wextra -pedantic -g"
+        },
+        {
+            "label": "Run smart helmet",
+            "type": "shell",
+            "command": "${workspaceFolder}\\build\\smart_helmet.exe",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": ["Build smart helmet"],
+            "problemMatcher": [],
+            "detail": "Build then run in the integrated terminal"
+        }
+    ]
+}

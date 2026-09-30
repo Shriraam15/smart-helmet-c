@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "author": "Shri - Smart Helmet Safety System (C course project)",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 40, "left": 20, "attrs": {} },
+    {
+      "type": "wokwi-lcd1602",
+      "id": "lcd",
+      "top": -140,
+      "left": 220,
+      "attrs": { "pins": "i2c" }
+    },
+    {
+      "type": "wokwi-gas-sensor",
+      "id": "gas",
+      "top": -60,
+      "left": 480,
+      "attrs": { "ppm": "400" }
+    },
+    {
+      "type": "wokwi-mpu6050",
+      "id": "imu",
+      "top": 160,
+      "left": 480,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-buzzer",
+      "id": "bz",
+      "top": -40,
+      "left": -160,
+      "attrs": { "volume": "0.6" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led_go",
+      "top": 80,
+      "left": -180,
+      "attrs": { "color": "green" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led_lock",
+      "top": 160,
+      "left": -180,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 60,
+      "left": -100,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 140,
+      "left": -100,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "strap",
+      "top": 300,
+      "left": 240,
+      "attrs": { "color": "blue", "label": "HELMET STRAP" }
+    }
+  ],
+  "connections": [
+    [ "lcd:GND", "uno:GND.1", "black", [] ],
+    [ "lcd:VCC", "uno:5V", "red", [] ],
+    [ "lcd:SDA", "uno:A4", "orange", [] ],
+    [ "lcd:SCL", "uno:A5", "yellow", [] ],
+
+    [ "gas:VCC", "uno:5V", "red", [] ],
+    [ "gas:GND", "uno:GND.2", "black", [] ],
+    [ "gas:AO", "uno:A0", "green", [] ],
+
+    [ "imu:VCC", "uno:5V", "red", [] ],
+    [ "imu:GND", "uno:GND.3", "black", [] ],
+    [ "imu:SDA", "uno:A4", "orange", [] ],
+    [ "imu:SCL", "uno:A5", "yellow", [] ],
+
+    [ "bz:2", "uno:2", "purple", [] ],
+    [ "bz:1", "uno:GND.2", "black", [] ],
+
+    [ "uno:3", "r1:1", "green", [] ],
+    [ "r1:2", "led_go:A", "green", [] ],
+    [ "led_go:C", "uno:GND.1", "black", [] ],
+
+    [ "uno:4", "r2:1", "red", [] ],
+    [ "r2:2", "led_lock:A", "red", [] ],
+    [ "led_lock:C", "uno:GND.1", "black", [] ],
+
+    [ "strap:1.l", "uno:5", "blue", [] ],
+    [ "strap:2.l", "uno:GND.2", "black", [] ]
+  ]
+}

@@ -1,0 +1,8 @@
+# Build artifacts
+build/
+*.o
+*.exe
+
+# Runtime data (rides.csv, alerts.log, settings.txt)
+data/*
+!data/.gitkeep

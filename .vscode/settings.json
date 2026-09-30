@@ -1,0 +1,9 @@
+{
+    "C_Cpp.default.compilerPath": "C:\\Users\\vpshr\\mingw64\\bin\\gcc.exe",
+    "C_Cpp.default.cStandard": "c99",
+    "C_Cpp.default.intelliSenseMode": "windows-gcc-x64",
+    "files.associations": {
+        "*.h": "c"
+    },
+    "editor.formatOnSave": false
+}
